@@ -1,3 +1,6 @@
+"""Compact 8-queens solver used as one seminar implementation stage."""
+
+
 def all_8_queens():
     x = [0] * 9
     rows = [True] * 9
@@ -33,6 +36,7 @@ def all_8_queens():
 
     try_column(1)
     return solutions
+
 
 if __name__ == "__main__":
     print(all_8_queens())

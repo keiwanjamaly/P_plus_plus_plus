@@ -1,4 +1,4 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 from typing import List, Tuple
 
 
@@ -30,7 +30,11 @@ class Board:
                     squares.append(f"{dark_square} . {reset}")
 
             rank = self.N - row
-            lines.append(f"{label}{rank:>2}{reset}{border}|{reset}" + f"{border}|{reset}".join(squares) + f"{border}|{reset}")
+            lines.append(
+                f"{label}{rank:>2}{reset}{border}|{reset}"
+                + f"{border}|{reset}".join(squares)
+                + f"{border}|{reset}"
+            )
             lines.append(separator)
 
         files = " ".join(f"{chr(ord('a') + column):^3}" for column in range(self.N))
@@ -49,14 +53,11 @@ def is_out_of_bounds(board: Board, column: int):
 
 def possible_rows(board: Board):
     all_occupied_rows = list(map(lambda pos: pos[1], board.positions))
-    # print(board.positions)
-    # print(f"{all_occupied_rows=}")
     possible_rows_result: List[int] = []
     for row in range(board.N):
         if row not in all_occupied_rows:
             possible_rows_result.append(row)
 
-    # print(f"{possible_rows_result=}")
     return possible_rows_result
 
 
@@ -75,9 +76,7 @@ def safe_position(board: Board, column: int, row: int):
 
 
 def add_queen_to_column(all_solutions: List[Board], board=None, column: int = 0):
-    """
-    This function assums, that you initialize it with an empty board and column is set to 0.
-    """
+    """Recursively place one queen per column, starting from an empty board."""
     if board is None:
         board = Board()
 
@@ -102,6 +101,8 @@ def main():
     for board in all_solutions:
         print(board)
         print()
+
+    print(len(all_solutions))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 [project]
 name = "p-plus-plus-plus"
 version = "0.1.0"
-description = "Add your description here"
+description = "Seminar material on declarative-to-imperative program development"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = []
