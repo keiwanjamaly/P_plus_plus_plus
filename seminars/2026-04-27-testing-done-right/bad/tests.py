@@ -1,14 +1,28 @@
+"""
+Intentionally clumsy tests for the seminar.
+
+They work, but each one has to carry far more setup than the behavior under
+test really deserves.
+"""
+
 import sys
 import unittest
+import importlib.util
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+MODULE_PATH = Path(__file__).with_name("simulation.py")
+SPEC = importlib.util.spec_from_file_location("testing_done_right_bad_simulation", MODULE_PATH)
+assert SPEC is not None
+assert SPEC.loader is not None
+simulation = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = simulation
+SPEC.loader.exec_module(simulation)
 
-from simulation import run_simulation
+run_simulation = simulation.run_simulation
 
 
 class TestSimulation(unittest.TestCase):
-    def test_it_works(self) -> None:
+    def test_full_report_has_to_be_asserted_as_text(self) -> None:
         config = {
             "problem": {
                 "name": "case-1",
@@ -42,6 +56,7 @@ class TestSimulation(unittest.TestCase):
                 "method=adaptive",
                 "cells=8",
                 "order=2",
+                "stencil_width=5",
                 "steps=4",
                 "dt=0.25",
                 "scheme=implicit",
@@ -56,7 +71,7 @@ class TestSimulation(unittest.TestCase):
 
         self.assertEqual(run_simulation(config), expected)
 
-    def test_it_works_in_uppercase(self) -> None:
+    def test_uppercase_mode_forces_another_large_report_assertion(self) -> None:
         config = {
             "problem": {
                 "name": "case-1",
@@ -93,6 +108,7 @@ class TestSimulation(unittest.TestCase):
                     "METHOD=ADAPTIVE",
                     "CELLS=8",
                     "ORDER=2",
+                    "STENCIL_WIDTH=5",
                     "STEPS=4",
                     "DT=0.25",
                     "SCHEME=IMPLICIT",
@@ -106,37 +122,39 @@ class TestSimulation(unittest.TestCase):
             ),
         )
 
-    def test_stuff(self) -> None:
+    def test_discretization_detail_still_needs_the_full_configuration_blob(self) -> None:
+        # Even though the point is only the stencil width, this test still has
+        # to go through the whole simulation config and inspect rendered text.
         config = {
             "problem": {
-                "name": "case-2",
-                "difficulty": "easy",
+                "name": "discretization-case",
+                "difficulty": "normal",
                 "mode": "analysis",
             },
             "discretization": {
-                "method": "uniform",
-                "cells": 5,
-                "order": 1,
-                "limiter": "strict",
+                "method": "adaptive",
+                "cells": 6,
+                "order": 3,
+                "limiter": "off",
             },
             "time": {
                 "steps": 2,
-                "dt": 0.5,
+                "dt": 0.1,
                 "scheme": "explicit",
                 "safety_factor": 1.0,
             },
             "output": {
                 "include_history": False,
-                "include_config": True,
+                "include_config": False,
                 "uppercase": False,
             },
         }
 
         result = run_simulation(config)
-        self.assertIn("name=case-2", result)
-        self.assertIn("difficulty=easy", result)
-        self.assertIn("score=10.5", result)
-        self.assertIn("config={'problem': {'name': 'case-2'", result)
+        self.assertIn("name=discretization-case", result)
+        self.assertIn("method=adaptive", result)
+        self.assertIn("stencil_width=7", result)
+        self.assertIn("score=4.4", result)
 
 
 if __name__ == "__main__":

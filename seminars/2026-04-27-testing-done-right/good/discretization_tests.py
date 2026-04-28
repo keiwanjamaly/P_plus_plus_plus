@@ -5,18 +5,23 @@ These are useful in the seminar because they show that we do not need to go
 through the full simulation runner to test discretization behavior.
 """
 
-import unittest
-from pathlib import Path
 import sys
+import unittest
+import importlib.util
+from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+MODULE_PATH = Path(__file__).with_name("simulation.py")
+SPEC = importlib.util.spec_from_file_location("testing_done_right_good_simulation_discretization", MODULE_PATH)
+assert SPEC is not None
+assert SPEC.loader is not None
+simulation = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = simulation
+SPEC.loader.exec_module(simulation)
 
-from simulation import (
-    Discretization,
-    DiscretizationMethod,
-    Limiter,
-    validate_discretization,
-)
+Discretization = simulation.Discretization
+DiscretizationMethod = simulation.DiscretizationMethod
+Limiter = simulation.Limiter
+validate_discretization = simulation.validate_discretization
 
 
 class TestDiscretization(unittest.TestCase):

@@ -1,25 +1,26 @@
-"""
-Cleaner reference tests for the seminar.
-"""
-
-import unittest
-from pathlib import Path
 import sys
+import unittest
+import importlib.util
+from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+MODULE_PATH = Path(__file__).with_name("simulation.py")
+SPEC = importlib.util.spec_from_file_location("testing_done_right_good_simulation", MODULE_PATH)
+assert SPEC is not None
+assert SPEC.loader is not None
+simulation = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = simulation
+SPEC.loader.exec_module(simulation)
 
-from simulation import (
-    Difficulty,
-    Discretization,
-    DiscretizationMethod,
-    Limiter,
-    Problem,
-    Simulation,
-    TimeScheme,
-    TimeStepper,
-    parse_simulation,
-    run_simulation,
-)
+Difficulty = simulation.Difficulty
+Discretization = simulation.Discretization
+DiscretizationMethod = simulation.DiscretizationMethod
+Limiter = simulation.Limiter
+Problem = simulation.Problem
+Simulation = simulation.Simulation
+TimeScheme = simulation.TimeScheme
+TimeStepper = simulation.TimeStepper
+parse_simulation = simulation.parse_simulation
+run_simulation = simulation.run_simulation
 
 
 def make_simulation(

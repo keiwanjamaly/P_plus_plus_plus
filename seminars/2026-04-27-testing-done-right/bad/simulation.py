@@ -1,4 +1,12 @@
-from dataclasses import dataclass
+"""
+Intentionally bad example for the "Testing done right" seminar.
+
+Intended behavior:
+- one nested config dict is the construction API for everything
+- parsing, validation, computation, and formatting are mixed together
+- the only public contract is a formatted report string
+"""
+
 from enum import StrEnum
 from typing import Any
 
@@ -10,34 +18,28 @@ class Difficulty(StrEnum):
 
 
 def run_simulation(config: dict[str, Any]) -> str:
-    config.setdefault("problem", {})
-    config.setdefault("discretization", {})
-    config.setdefault("time", {})
-    config.setdefault("output", {})
-
     problem = config["problem"]
     discretization = config["discretization"]
     time = config["time"]
     output = config["output"]
 
-    name = problem.get("name", "unnamed")
-    difficulty = Difficulty.HARD
-    difficulty = problem.get("difficulty", "normal")
-    mode = problem.get("mode", "demo")
+    name = problem["name"]
+    difficulty = problem["difficulty"]
+    mode = problem["mode"]
 
-    method = discretization.get("method", "uniform")
-    cells = discretization.get("cells", 10)
-    order = discretization.get("order", 1)
-    limiter = discretization.get("limiter", "off")
+    method = discretization["method"]
+    cells = discretization["cells"]
+    order = discretization["order"]
+    limiter = discretization["limiter"]
 
-    steps = time.get("steps", 3)
-    dt = time.get("dt", 0.1)
-    scheme = time.get("scheme", "explicit")
-    safety_factor = time.get("safety_factor", 1.0)
+    steps = time["steps"]
+    dt = time["dt"]
+    scheme = time["scheme"]
+    safety_factor = time["safety_factor"]
 
-    include_history = output.get("include_history", True)
-    include_config = output.get("include_config", True)
-    uppercase = output.get("uppercase", False)
+    include_history = output["include_history"]
+    include_config = output["include_config"]
+    uppercase = output["uppercase"]
 
     if cells <= 0:
         raise ValueError("cells must be positive")
@@ -48,9 +50,9 @@ def run_simulation(config: dict[str, Any]) -> str:
     if dt <= 0:
         raise ValueError("dt must be positive")
 
-    if difficulty == "hard":
+    if difficulty == Difficulty.HARD:
         penalty = 2
-    elif difficulty == "easy":
+    elif difficulty == Difficulty.EASY:
         penalty = -1
     else:
         penalty = 0
@@ -59,6 +61,8 @@ def run_simulation(config: dict[str, Any]) -> str:
         cell_factor = cells * 2
     else:
         cell_factor = cells
+
+    stencil_width = 2 * order + 1
 
     if scheme == "implicit":
         scheme_factor = 3
@@ -97,6 +101,7 @@ def run_simulation(config: dict[str, Any]) -> str:
         "method=" + str(method),
         "cells=" + str(cells),
         "order=" + str(order),
+        "stencil_width=" + str(stencil_width),
         "steps=" + str(steps),
         "dt=" + str(dt),
         "scheme=" + str(scheme),

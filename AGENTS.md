@@ -1,12 +1,16 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repository supports seminar material on coding-related projects using stepwise refinement.
+This repository supports seminar material on coding-related projects, currently
+covering both stepwise refinement and testability-by-design.
 
 - `seminars/2026-04-20-stepwise-refinement/`: material from the seminar on Monday, April 20, 2026.
 - `seminars/2026-04-20-stepwise-refinement/declarative_description.md`: natural-language specification of the example.
 - `seminars/2026-04-20-stepwise-refinement/compact_solver.py`: compact imperative 8-queens solver.
 - `seminars/2026-04-20-stepwise-refinement/board_solver.py`: more explicit solver with board rendering.
+- `seminars/2026-04-27-testing-done-right/`: paired bad/good examples for a seminar on how design choices affect testing difficulty.
+- `seminars/2026-04-27-testing-done-right/bad/`: intentionally awkward version where one config blob drives everything.
+- `seminars/2026-04-27-testing-done-right/good/`: refactored version with explicit concepts and focused test seams.
 - `pyproject.toml`: project metadata and Python version requirement (`>=3.14`).
 - `uv.lock`: locked environment metadata for `uv`.
 
@@ -16,8 +20,12 @@ Keep seminar examples small and readable. New seminar sessions should usually ge
 - `uv run python seminars/2026-04-20-stepwise-refinement/compact_solver.py`: run the compact solver and print raw solutions.
 - `uv run python seminars/2026-04-20-stepwise-refinement/board_solver.py`: run the rendered board solver and print all solutions.
 - `uv run python -m py_compile seminars/2026-04-20-stepwise-refinement/*.py`: quick syntax validation for the seminar code.
+- `uv run python -m unittest seminars/2026-04-27-testing-done-right/bad/tests.py`: run the intentionally clumsy bad-example tests.
+- `uv run python -m unittest seminars/2026-04-27-testing-done-right/good/tests.py`: run the good-example simulation tests.
+- `uv run python -m unittest seminars/2026-04-27-testing-done-right/good/discretization_tests.py`: run the focused discretization tests.
 
-There is no separate build step or configured test runner yet.
+There is no separate build step. The testing seminar uses plain `unittest`
+modules instead of a project-wide test runner.
 
 ## Coding Style & Naming Conventions
 Follow standard Python conventions:
@@ -37,9 +45,14 @@ For seminar work, preserve the declarative-to-imperative flow:
 The current codebase is formatter-neutral. If you introduce `ruff` or `pytest`, update this guide and `pyproject.toml` in the same change.
 
 ## Testing Guidelines
-This repository does not yet include automated tests. For now, validate changes by running the seminar scripts and checking that they still enumerate valid solutions. When adding tests:
+This repository includes seminar-local automated tests for the testing seminar.
+Validate changes by running the relevant seminar scripts or `unittest` modules.
+When adding tests:
 
-- create files under `tests/` named `test_<feature>.py`
+- prefer keeping seminar-specific tests close to the seminar code when that
+  improves readability of the teaching material
+- if you add cross-cutting project tests, create files under `tests/` named
+  `test_<feature>.py`
 - cover both solver correctness and output-independent logic
 - prefer deterministic assertions such as solution counts or attack checks
 - when useful, test the declarative description indirectly by asserting the observable behavior promised by that description
